@@ -33,6 +33,8 @@ module.exports = function makeWebpackConfig () {
     app: './src/app/app.js'
   };
 
+  context: __dirname,
+
   /**
    * Output
    * Reference: http://webpack.github.io/docs/configuration.html#output
@@ -78,8 +80,19 @@ module.exports = function makeWebpackConfig () {
 
   // Initialize module
   config.module = {
-    preLoaders: [],
-    loaders: [{
+    preLoaders: [
+      // { 
+      //   test: /\.js$/, 
+      //   loader: 'baggage?[file].html' 
+      //   // loader: 'baggage?[file].html&[file].css' 
+      // }
+      ],
+    loaders: [
+      {
+        test: /\.js$/,
+        loader: 'required?import[]=angular',
+      },
+      {
       // JS LOADER
       // Reference: https://github.com/babel/babel-loader
       // Transpile .js files using babel-loader
@@ -87,7 +100,12 @@ module.exports = function makeWebpackConfig () {
       test: /\.js$/,
       loader: 'babel',
       exclude: /node_modules/
-    }, {
+    },
+    // {
+    //     test: /\.html$/,
+    //     loader: 'ngtemplate?relativeTo=' + __dirname + '/!html'
+    // },
+    {
       // CSS LOADER
       // Reference: https://github.com/webpack/css-loader
       // Allow loading css through js
@@ -108,15 +126,17 @@ module.exports = function makeWebpackConfig () {
       // Rename the file using the asset hash
       // Pass along the updated reference to your code
       // You can add here any file extension you want to get copied to your output
-      test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
+      test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|md)$/,
       loader: 'file'
-    }, {
+    }, 
+    {
       // HTML LOADER
       // Reference: https://github.com/webpack/raw-loader
       // Allow loading html through js
       test: /\.html$/,
       loader: 'raw'
-    }]
+    }
+    ]
   };
 
   // ISPARTA LOADER
@@ -139,18 +159,18 @@ module.exports = function makeWebpackConfig () {
    * Reference: https://github.com/postcss/autoprefixer-core
    * Add vendor prefixes to your css
    */
-  config.postcss = [
-    autoprefixer({
-      browsers: ['last 2 version']
-    })
-  ];
+  config.postcss = []
+  //   autoprefixer({
+  //     browsers: ['last 2 version']
+  //   })
+  // ];
 
   /**
    * Plugins
    * Reference: http://webpack.github.io/docs/configuration.html#plugins
    * List: http://webpack.github.io/docs/list-of-plugins.html
    */
-  config.plugins = [];
+  config.plugins = [new webpack.optimize.CommonsChunkPlugin('common.js')];
 
   // Skip rendering index.html in test mode
   if (!isTest) {
